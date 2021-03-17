@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+  client:
+    build:
+      context: client
+    environment:
+      URL: "http://traefik"
+
+  backend:
+    image: nginx
+
+  traefik:
+    image: traefik:2.4.3
+    ports:
+    - "80:80"
+    - "443:443"
+    restart: always
+    volumes:
+    - ./traefik:/etc/traefik
+    command:
+    - --configfile=/etc/traefik/config.yml
+
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://127.0.0.1:19000"
+        tag: "docker/traefik"
+    
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.11.2
+    network_mode: host
+    volumes:
+    - ./traefik/logs:/var/log/traefik
+    - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+
+  logstash:
+    build:
+      context: logstash
+    network_mode: host
+    volumes:
+    - ./logstash/pipeline:/usr/share/logstash/pipeline
+    
+
+  clickhouse:
+    image: yandex/clickhouse-server:21.2.6.1-alpine
+    network_mode: host
+    volumes:
+    - ./clickhouse/init:/docker-entrypoint-initdb.d

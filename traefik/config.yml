@@ -1,0 +1,68 @@
+accessLog:
+  filePath: /dev/stdout
+  bufferingSize: 1
+  format: json
+  fields:
+    defaultMode: drop
+    names:
+      ClientHost: keep
+      DownstreamStatus: keep
+      Duration: keep
+      OriginDuration: keep
+      OriginStatus: keep
+      OriginContentSize: keep
+      Overhead: keep
+      RequestContentSize: keep
+      RequestHost: keep
+      RequestMethod: keep
+      RequestPath: keep
+      RequestProtocol: keep
+      RequestScheme: keep
+      RetryAttempts: keep
+      StartUTC: keep
+      GzipRatio: keep
+      RouterName: keep
+      ServiceAddr: keep
+    headers:
+      defaultMode: drop
+      names:
+        User-Agent: keep
+        Content-Type: keep
+
+api:
+  dashboard: true
+  insecure: true
+
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+entryPoints:
+  http:
+    address: ":80"
+  https:
+    address: ":443"
+  prometheus:
+    address: ":9090"
+  traefik:
+    address: ":8080"
+
+metrics:
+  prometheus:
+    entryPoint: prometheus
+    buckets: [0.1, 0.25, 0.5, 1.5, 5.0, 15.0, 60.0]
+  
+log:
+  filePath: /dev/stderr
+
+certificatesResolvers:
+  lets-encrypt:
+    acme:
+      email: hosting@nappyclub.ru
+      storage: /etc/traefik/certificates/certificates.json
+      httpChallenge:
+        entryPoint: http
+
+providers:
+  file:
+    directory: /etc/traefik/dynamic

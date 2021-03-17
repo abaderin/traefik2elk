@@ -1,0 +1,17 @@
+filebeat.inputs:
+- type: syslog
+  protocol.udp:
+    host: "localhost:19000"
+
+queue.spool:
+  file:
+    path: "${path.data}/spool.dat"
+    size: 256MiB
+    page_size: 4KiB
+  write:
+    buffer_size: 4MiB
+    flush.timeout: 15s
+    flush.events: 512
+
+output.logstash:
+  hosts: ["127.0.0.1:5044"] 
